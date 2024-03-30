@@ -1,6 +1,7 @@
 """CS585 HW4"""
 
 import os
+import csv
 import pandas as pd
 from PIL import Image
 import torch
@@ -26,6 +27,7 @@ def paired_resize(image, label, size):
     return image, label
 
 class CamVidDataset(Dataset):
+    """Class for video dataset"""
     def __init__(self, root, images_dir, labels_dir, class_dict_path, resolution, crop=False):
         self.root = root
         self.images_dir = images_dir
@@ -59,9 +61,19 @@ class CamVidDataset(Dataset):
 
     def parse_class_dict(self, class_dict_path):
         """return a dictionary that maps class id (0-31) to a tuple ((R,G,B), class_name)"""
-        raise NotImplementedError("Implement the method")
+        class_dict = {}
+        with open(class_dict_path, 'r', encoding='utf-8') as file:
+            csv_reader = csv.reader(file)
+            for idx, row in enumerate(csv_reader, start=1):
+                class_name = row[0]
+                r, g, b = row[1], row[2], row[3]
+                class_dict[idx] = ((r,g,b), class_name)
+
+        # raise NotImplementedError("Implement the method")
+        return class_dict
 
     def rgb_to_class_id(self, label_img):
+        class_id_img = 
         """Convert an RGB label image to a class ID image (H, W, 3) -> (H, W)"""
         raise NotImplementedError("Implement the method")
 
