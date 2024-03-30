@@ -64,18 +64,31 @@ class CamVidDataset(Dataset):
         class_dict = {}
         with open(class_dict_path, 'r', encoding='utf-8') as file:
             csv_reader = csv.reader(file)
-            for idx, row in enumerate(csv_reader, start=1):
+            for _ in range(1):
+                next(csv_reader)
+
+            for idx, row in enumerate(csv_reader):
                 class_name = row[0]
-                r, g, b = row[1], row[2], row[3]
+                r, g, b = int(row[1]), int(row[2]), int(row[3])
                 class_dict[idx] = ((r,g,b), class_name)
 
         # raise NotImplementedError("Implement the method")
         return class_dict
 
     def rgb_to_class_id(self, label_img):
-        class_id_img = 
         """Convert an RGB label image to a class ID image (H, W, 3) -> (H, W)"""
-        raise NotImplementedError("Implement the method")
+        label_img = np.array(label_img) # convert to numpy
+        h, w = label_img.shape[0], label_img.shape[1]
+        class_id_img = np.zeros((h,w)) # initialize class img
+        for row in range(h):
+            for col in range(w):
+                (r,g,b) = label_img[row,col,:]  # extract RGB value of pixel
+                for class_id, (color, _) in self.class_dict.items(): # match RGB values to class in dictionary
+                    if color == (r,g,b):
+                        class_id_img[row,col] = class_id
+
+        # raise NotImplementedError("Implement the method")
+        return Image.fromarray(class_id_img)
 
 if __name__ == "__main__":
     images_dir = "train/"
@@ -87,7 +100,8 @@ if __name__ == "__main__":
     # Example of loading a single sample
     image, label = camvid_dataset[0]
 
-    # To visualize or further process, you might want to convert 'label' back to a color image or directly use it for training a segmentation model.
+    # To visualize or further process, you might want to convert 'label' back to a color 
+    # image or directly use it for training a segmentation model.
     label_vis = label.numpy().astype(np.float32)
     label_vis /= 31.
     label_vis *= 255.
