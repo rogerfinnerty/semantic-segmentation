@@ -52,7 +52,15 @@ class FCN8s(nn.Module):
         out_3 = self.features_block3(out_2) # (H/8, W/8)
         out_4 = self.features_block4(out_3) # (H/16, W/16)
         out_5 = self.features_block5(out_4) # (H/32, W/32)
-        
-        score = self.score_pool4(out_5)
 
-        raise NotImplementedError("Implement the forward method")
+        score_5 = self.score_pool4(out_5)   # (H/32, W/32)
+        upscore2 = self.upscore2(score_5)    # (H/16, H/16)
+
+        score_4 = self.score_pool4(out_4) # (H/16, W/16)
+
+        upscore4 = self.upscore_pool4(upscore2 + score_4) # (H/8, W/8)
+
+        upscore_final = self.upscore_final(out_3 + upscore4) # (H, W)
+
+        # raise NotImplementedError("Implement the forward method")
+        return upscore_final
