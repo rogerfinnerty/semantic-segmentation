@@ -8,6 +8,7 @@ Roger Finnerty, Demetrios Kechris, Ben Burnham
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision
 from torchvision import models
 
 class FCN8s(nn.Module):
@@ -40,6 +41,8 @@ class FCN8s(nn.Module):
         self.upscore2 = nn.ConvTranspose2d(num_classes, num_classes, kernel_size=4, stride=2, bias=False)
         self.upscore_pool4 = nn.ConvTranspose2d(num_classes, num_classes, kernel_size=4, stride=2, bias=False)
         self.upscore_final = nn.ConvTranspose2d(num_classes, num_classes, kernel_size=16, stride=8, bias=False)
+        self.crop16 = torchvision.transforms.CenterCrop((32, 24))
+        self.crop8 = torchvision.transforms.CenterCrop((64, 48))
 
         # Skip connections
         self.score_pool4 = nn.Conv2d(512, num_classes, kernel_size=1)
@@ -54,11 +57,14 @@ class FCN8s(nn.Module):
         out_5 = self.features_block5(out_4) # (H/32, W/32)
 
         score_5 = self.score_pool4(out_5)   # (H/32, W/32)
+        
         upscore2 = self.upscore2(score_5)    # (H/16, H/16)
+        upscore2 = self.crop16(upscore2)
 
         score_4 = self.score_pool4(out_4) # (H/16, W/16)
-
+        
         upscore4 = self.upscore_pool4(upscore2 + score_4) # (H/8, W/8)
+        upscore4 = self.crop8(upscore4)
 
         upscore_final = self.upscore_final(out_3 + upscore4) # (H, W)
 
