@@ -5,13 +5,13 @@ Roger Finnerty, Demetrios Kechris, Ben Burnham
 
 """
 
-import torch
-import fcn_model
-import fcn_dataset
 import os
-from tqdm import tqdm
+import torch
 import numpy as np
 from PIL import Image
+from tqdm import tqdm
+import fcn_model
+import fcn_dataset
 
 # Define the device
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -44,7 +44,14 @@ dataloader_test = torch.utils.data.DataLoader(camvid_dataset_test, batch_size=1,
 
 # Define the loss function and optimizer
 def loss_fn(outputs, labels):
-    raise NotImplementedError("Implement the loss function")
+    """
+    Computes the cross entropy loss between the model outputs and 
+    labeled data
+    """
+    criterion = torch.nn.CrossEntropyLoss()
+    loss = criterion(outputs, labels)
+    # raise NotImplementedError("Implement the loss function")
+    return loss
 
 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
@@ -110,34 +117,35 @@ def visualize_model(model, dataloader, device):
             
     model.train()
     
-# Train the model
-loss_list = []
-for epoch in range(num_epochs):
-    for i, (images, labels) in enumerate(dataloader_train):
-        images, labels = images.to(device), labels.to(device)
+if __name__ == '__main__':
+    # Train the model
+    loss_list = []
+    for epoch in range(num_epochs):
+        for i, (images, labels) in enumerate(dataloader_train):
+            images, labels = images.to(device), labels.to(device)
 
-        # Forward pass
-        outputs = model(images)
-        loss = loss_fn(outputs, labels)
+            # Forward pass
+            outputs = model(images)
+            loss = loss_fn(outputs, labels)
 
-        # Backward pass and optimize
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        loss_list.append(loss.item())
+            # Backward pass and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            loss_list.append(loss.item())
 
-        if (i+1) % 10 == 0:
-            print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, len(dataloader_train), sum(loss_list)/len(loss_list)))
-            loss_list = []
+            if (i+1) % 10 == 0:
+                print ('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch+1, num_epochs, i+1, len(dataloader_train), sum(loss_list)/len(loss_list)))
+                loss_list = []
 
-    # eval the model        
-    eval_model(model, dataloader_val, device)
+        # eval the model        
+        eval_model(model, dataloader_val, device)
 
-print('='*20)
-print('Finished Training, evaluating the model on the test set')
-eval_model(model, dataloader_test, device, save_pred=True)
+    print('='*20)
+    print('Finished Training, evaluating the model on the test set')
+    eval_model(model, dataloader_test, device, save_pred=True)
 
-print('='*20)
-print('Visualizing the model on the test set, the results will be saved in the vis/ directory')
-visualize_model(model, dataloader_test, device)
+    print('='*20)
+    print('Visualizing the model on the test set, the results will be saved in the vis/ directory')
+    visualize_model(model, dataloader_test, device)
 
