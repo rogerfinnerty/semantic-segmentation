@@ -43,6 +43,8 @@ class FCN8s(nn.Module):
         self.upscore_final = nn.ConvTranspose2d(num_classes, num_classes, kernel_size=16, stride=8, bias=False)
         self.crop16 = torchvision.transforms.CenterCrop((24, 32))
         self.crop8 = torchvision.transforms.CenterCrop((48, 64))
+        self.cropfull = torchvision.transforms.CenterCrop((384, 512))
+
 
         # Skip connections
         self.score_pool4 = nn.Conv2d(512, num_classes, kernel_size=1)
@@ -69,6 +71,7 @@ class FCN8s(nn.Module):
         score_3 = self.score_pool3(out_3) # (H/8, W/8)
 
         upscore_final = self.upscore_final(score_3 + upscore4) # (H, W)
+        crop_final = self.cropfull(upscore_final)
 
         # raise NotImplementedError("Implement the forward method")
-        return upscore_final
+        return crop_final
