@@ -1,9 +1,3 @@
-"""
-CS585 HW4 Semantic Segmentation
-Roger Finnerty, Demetrios Kechris, Benjamin Burnham
-April 1, 2024
-"""
-
 import torch
 import fcn_model
 import fcn_dataset
@@ -25,7 +19,8 @@ labels_dir_train = "train_labels/"
 class_dict_path = "class_dict.csv"
 resolution = (384, 512)
 batch_size = 16
-num_epochs = 50
+# num_epochs = 50
+num_epochs = 100
 
 
 camvid_dataset_train = fcn_dataset.CamVidDataset(root='CamVid/', images_dir=images_dir_train, labels_dir=labels_dir_train, class_dict_path=class_dict_path, resolution=resolution, crop=True)
@@ -53,7 +48,8 @@ def loss_fn(outputs, labels):
     return loss
 
 
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+# optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
 
 def eval_model(model, dataloader, device, save_pred=False):
     model.eval()
@@ -61,10 +57,10 @@ def eval_model(model, dataloader, device, save_pred=False):
     epsilon = 1e-9
 
     # Initialize confusion matrix
-    confusion_mat = torch.zeros((num_classes, num_classes),
-                                dtype=torch.int64,
+    confusion_mat = torch.zeros((num_classes, num_classes), 
+                                dtype=torch.int64, 
                                 device=device)
-
+    
     if save_pred:
         pred_list = []
     with torch.no_grad():
@@ -81,8 +77,11 @@ def eval_model(model, dataloader, device, save_pred=False):
             confusion_mat = confusion_mat + torch.bincount(num_classes * labels + predicted, minlength=num_classes**2).view(num_classes, num_classes).to(device)
         
         # Metric Calcs
-        pixel_acc = torch.diag(confusion_mat).sum().item() / confusion_mat.sum().item()
-        iou = torch.diag(confusion_mat) / (confusion_mat.sum(dim=0) + confusion_mat.sum(dim=1) - torch.diag(confusion_mat) + epsilon)
+        intersection = torch.diag(confusion_mat)
+        union = confusion_mat.sum(dim=0) + confusion_mat.sum(dim=1) - torch.diag(confusion_mat) + epsilon
+        iou = intersection / union
+        
+        pixel_acc = torch.diag(confusion_mat).sum().item() / confusion_mat.sum().item()        
         mean_iou = iou.mean().item()
         freq_iou = (iou * confusion_mat.sum(dim=1) / confusion_mat.sum()).sum().item()
 
