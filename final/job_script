@@ -5,7 +5,7 @@
 #$ -N CS585_a4
 #$ -j y
 #$ -o train.out
-#$ -pe omp 16
+#$ -pe omp 8
 #$ -l gpus=1
 #$ -l gpu_c=7.0
 
