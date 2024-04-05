@@ -1,3 +1,9 @@
+"""
+CS585 HW4 Semantic Segmentation
+Roger Finnerty, Demetrios Kechris, Benjamin Burnham
+April 1, 2024
+"""
+
 import os
 import pandas as pd
 from PIL import Image

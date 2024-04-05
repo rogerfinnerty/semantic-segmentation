@@ -1,3 +1,9 @@
+"""
+CS585 HW4 Semantic Segmentation
+Roger Finnerty, Demetrios Kechris, Benjamin Burnham
+April 1, 2024
+"""
+
 import torch
 import fcn_model
 import fcn_dataset
@@ -55,10 +61,10 @@ def eval_model(model, dataloader, device, save_pred=False):
     epsilon = 1e-9
 
     # Initialize confusion matrix
-    confusion_mat = torch.zeros((num_classes, num_classes), 
-                                dtype=torch.int64, 
+    confusion_mat = torch.zeros((num_classes, num_classes),
+                                dtype=torch.int64,
                                 device=device)
-    
+
     if save_pred:
         pred_list = []
     with torch.no_grad():

@@ -58,7 +58,7 @@ class FCN8s(nn.Module):
         out_5 = self.features_block5(out_4) # (H/32, W/32)
 
         score_5 = self.score_pool4(out_5)   # (H/32, W/32)
-        
+
         upscore2 = self.upscore2(score_5)   # (H/16, H/16)
         score_4 = self.score_pool4(out_4) # (H/16, W/16)
         upscore2 = v2.CenterCrop(size=(24, 32))(upscore2)
