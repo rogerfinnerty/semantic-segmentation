@@ -37,7 +37,14 @@ dataloader_test = torch.utils.data.DataLoader(camvid_dataset_test, batch_size=1,
 
 # Define the loss function and optimizer
 def loss_fn(outputs, labels):
-    raise NotImplementedError("Implement the loss function")
+    """
+    Computes the cross entropy loss between the model outputs and 
+    labeled data
+    """
+    criterion = torch.nn.CrossEntropyLoss()
+    loss = criterion(outputs, labels)
+    # raise NotImplementedError("Implement the loss function")
+    return loss
 
 
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
