@@ -1,0 +1,17 @@
+#!/bin/bash -l
+
+#$ -P cs585
+#$ -m ea
+#$ -N CS585_a4
+#$ -j y
+#$ -o train.out
+#$ -pe omp 16
+#$ -l gpus=1
+#$ -l gpu_c=7.0
+
+### load your environment and run the job
+
+# example:
+module load miniconda/23.1.0 cuda
+conda activate csenv2
+python train.py
